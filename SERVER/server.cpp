@@ -6,6 +6,7 @@
 #include <mutex>
 #include <WinSock2.h>
 #include <ws2tcpip.h>
+#include <filesystem>
 #include <sstream>
 
 #pragma comment(lib, "ws2_32.lib")
@@ -120,7 +121,12 @@ private:
             getline(ss, message);
             sendMessage(clientSocket, roomName, message);
         }
-        else if (command == "SEND_FILE") {
+        
+        else if (command == "JOIN_ANOTHER_ROOM") {
+            string roomName;
+            ss >> roomName;
+            leaveRoom(clientSocket);
+            joinRoom(clientSocket, roomName);
             
         }
         else {
@@ -167,28 +173,24 @@ private:
     void sendMessage(SOCKET clientSocket, const string& roomName, const string& message) {
         lock_guard<mutex> lock(roomsMutex);
 
-        
         auto itRoom = clientRooms.find(clientSocket);
         if (itRoom == clientRooms.end() || itRoom->second != roomName) {
             sendResponse(clientSocket, "Error: You are not in the room you are trying to send a message to.");
             return;
         }
 
-       
         auto it = rooms.find(roomName);
         if (it == rooms.end()) {
             sendResponse(clientSocket, "Error: Room does not exist.");
             return;
         }
 
-        
         for (auto& socket : it->second.clients) {
-            if (socket != clientSocket) { 
+            if (socket != clientSocket) {
                 sendResponse(socket, "Message from room " + roomName + ": " + message);
             }
         }
     }
-
 
     void sendResponse(SOCKET clientSocket, const string& message) {
         send(clientSocket, message.c_str(), message.length(), 0);
