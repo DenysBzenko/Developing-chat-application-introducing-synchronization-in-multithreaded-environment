@@ -7,6 +7,7 @@ This code is a messenger between clients, meaning that clients can text each oth
 - JOIN_ANOTHER_ROOM >roomname< (Only if this room is created)
 - LEAVE_ROOM
 ## BYTES 
+You can send a maximum of 4096 bytes, so here is how many bytes each command has, do not exceed the limit, good luck!
 | Command to server | Server send answer |Client recv|
 | --- | --- |--|
 | CREATE_ROOM >roomname<| Sent 25 bytes to client.(Room created successfully)|Sent 13 bytes to server.|
